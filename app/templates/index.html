@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block body %}
+    <div class="jumbotron">
+    <h1>Mis notas de Kindle</h1>
+    <p>¿Quieres ver de forma ordenada tus notas de Kindle sin estudiar criptografía? ¡Te lo ponemos fácil!</p>
+    <form class="navbar-form" method="post" action="/" enctype="multipart/form-data">
+        <div class="form-group">
+            <input name="notas" class="form-control" type="file" placeholder="Introduzca su archivo">
+        </div>
+        <button type="submit" class="btn btn-default">Subir</button>
+    </form>
+    </div>
+{% endblock %}

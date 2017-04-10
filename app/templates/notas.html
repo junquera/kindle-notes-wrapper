@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block body %}
+        {% for nota in notas %}
+<div class="panel panel-primary"> 
+        <div class="panel-heading">{{ nota.title }}</div>
+        <div class="panel-body">{{ nota.body }}</div>
+        <div class="panel-footer">{{ nota.meta }}</div>
+</div>
+        {% endfor %}
+{% endblock %}
