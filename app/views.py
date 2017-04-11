@@ -2,14 +2,21 @@
 from app import app
 from flask import render_template, request
 import json
+from hashlib import md5 
 
 class Nota():
-    def __init__(self, title, meta, body):
-        self.title = title
-        self.meta = meta
-        self.body = ''
-        for e in body:
-            self.body += "%s\n" % e
+    def __init__(self, **kwargs):
+                if 'title' in kwargs:
+                    self.title = kwargs['title']
+                if 'meta' in kwargs:
+                    self.meta = kwargs['meta']
+                if 'body' in kwargs:
+                    self.body = kwargs['body']
+
+    def title_key(self):
+        bb = bytearray(self.title, 'utf-8')
+        return md5(bb).hexdigest()
+
     @property
     def serialize(self):
         return '{"title": "%r", "meta": "%r", "body": "%r"}' % (self.title, self.meta, self.body)
@@ -21,7 +28,7 @@ def index():
     elif request.method == 'POST':
         clips = request.files['notas'].read().decode('utf-8')
         notes = clips.split('==========')
-        notas = []
+        notas = {} 
         for note in notes:
             note_elements = note.split('\n')
             elements = []
@@ -29,10 +36,14 @@ def index():
                 if len(raw_element.strip()) > 0:
                     elements.append(raw_element)
             if len(elements) <= 2:
-                print(elements)
                 continue
-            notas.append(Nota(elements[0], elements[1], elements[2:]))
-
+            
+            n = Nota(title=elements[0], meta=elements[1], body=''.join(paragraph for paragraph in elements[2:]))
+            key = n.title_key()
+            if key in notas:
+                notas[key].append(n)
+            else:
+                notas[key] = [n]
         return render_template('notas.html', title='Notas', n=len(notas), notas=notas)  
 
     
