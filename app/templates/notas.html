@@ -1,10 +1,24 @@
 {% extends 'base.html' %}
 {% block body %}
-        {% for nota in notas %}
-<div class="panel panel-primary"> 
-        <div class="panel-heading">{{ nota.title }}</div>
-        <div class="panel-body">{{ nota.body }}</div>
-        <div class="panel-footer">{{ nota.meta }}</div>
-</div>
+<ul class="nav nav-tabs">
+    {% for key, libro in notas.iteritems() %}
+        <li><a href="#{{ key }}" data-toggle="tab">{{ libro[0].title }}</a></li>
+    {% endfor %}
+</ul>
+
+<div class="tab-content clearfix">
+     {% for key, libro in notas.iteritems() %}
+     <div class="tab-pane" id="{{ key }}"> 
+     <h2>{{ libro[0].title }}</h2>
+     {% for nota in libro %}
+        <span style="float: left" class="label label-default">PAG {{ nota.meta.page }}</span>
+        <br>
+        <!--        <pre>{{ nota.meta.position }}</pre> -->
+        <!-- <pre>{{ nota.meta.date }}</pre> -->
+        <p>{{ nota.body }}</p>
+        <!-- <div class="panel-footer">{{ nota.meta }}</div> -->
         {% endfor %}
+     </div>
+        {% endfor %}
+</div>
 {% endblock %}
