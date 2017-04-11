@@ -1,14 +1,14 @@
 #!flask/bin/python
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 from app import app
 from flask import render_template, request
 import json
 from hashlib import md5 
 import re
 from datetime import datetime
-# Basado en Añadido el lunes 1 de octubre de 2012 17H36' GMT+01:59
-# TODO Buscar más formatos de fecha y hacer que funcione
-date_regex = r'Añadido el ([^\s]+),? ([1-31]) de ([^\s]+) de ([0-9]+) (?:([0-9]+)H([0-9]+)|([0-9]+)\:([0-9]+))\''
+
+# TODO El 'Añ' no funciona, creo que por la Ñ
+date_regex = r'adido el ([^\s,]+),? ([1-9]|[1-3][0-9]?) de ([^\s]+) de ([0-9]+) (?:([0-9]+)\:([0-9]+)|([0-9]+)H([0-9]+)\')'
 
 week_days = {'lunes': 1, 'martes': 2, 'miércoles': 3, 'jueves': 4, 'viernes': 5, 'sábado': 6, 'domingo': 7}
 
@@ -25,12 +25,34 @@ class Meta():
 
     def parse(self, raw):
         parts = raw.split('|')
-        self.page = re.search(r'[0-9]+$', parts[0].strip()).group(0)
-        self.position = re.search(r'[0-9]-[0-9]+$', parts[1].strip()).group(0)
-        date_parts = re.search(date_regex, parts[2].strip())
-        # Hasta que no funcione, comentado
-        # self.date = datetime(int(date_parts.group(4)), int(months[date_parts.group(3)]), int(date_parts.group(1)), hour=int(date_parts.group(5)), minute=int(date_parts.group(6)))
-        self.date = parts[2].strip() 
+        if len(parts) < 3:
+            raise Exception("Bad metad")
+        page_raw = parts[0].strip()
+        position_raw = parts[1].strip()
+        date_raw = parts[2].strip()
+        try:
+            self.page = re.search(r'[0-9]+$', page_raw).group(0)
+        except:
+            self.page = page_raw
+
+        try:
+            self.position = re.search(r'[0-9]+\-[0-9]+$', position_raw).group(0)
+        except:
+            self.position = position_raw
+
+        date_parts = re.search(date_regex, date_raw, re.UNICODE)
+        try:
+            date_parts = date_parts.groups()
+            aux = []
+            for part in date_parts:
+                if part is not None:
+                    aux.append(part)
+            date_parts = aux
+            self.date = datetime(int(date_parts[3]), int(months[date_parts[2]]), int(week_days[date_parts[0]]), hour=int(date_parts[4]), minute=int(date_parts[5]))
+        except Exception as e:
+            print(e)
+            self.date = date_raw 
+        
         return self
 
 
@@ -81,7 +103,6 @@ def index():
             try:
                 n = Nota().parse(note)
             except Exception as e:
-                print(e)
                 continue
             key = n.title_key()
             if key in notas:

@@ -12,6 +12,7 @@
      <h2>{{ libro[0].title }}</h2>
      {% for nota in libro %}
         <span style="float: left" class="label label-default">PAG {{ nota.meta.page }}</span>
+        <span style="float: right" class="label label-default">{{ nota.meta.date }}</span>
         <br>
         <!--        <pre>{{ nota.meta.position }}</pre> -->
         <!-- <pre>{{ nota.meta.date }}</pre> -->
