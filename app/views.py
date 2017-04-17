@@ -3,15 +3,15 @@
 from app import app
 from flask import render_template, request
 import json
-from hashlib import md5 
+from hashlib import md5
 import re
 from datetime import datetime
 
 # TODO El 'Añ' no funciona, creo que por la Ñ
-date_regex = r'adido el ([^\s,]+),? ([1-9]|[1-3][0-9]?) de ([^\s]+) de ([0-9]+) (?:([0-9]+)\:([0-9]+)|([0-9]+)H([0-9]+)\')'
+date_regex = ur'Añadid[oa] el ([^\s,]+),? ([1-9]|[1-3][0-9]?) de ([^\s]+) de ([0-9]+) (?:([0-9]+)\:([0-9]+)|([0-9]+)H([0-9]+)\')'
 
-week_days = {'lunes': 1, 'martes': 2, 'miércoles': 3, 'jueves': 4, 'viernes': 5, 'sábado': 6, 'domingo': 7}
-
+# TODO Hay que cambiar las claves de estos diccionarios para evitar caracteres UNICODE
+week_days = {'lunes': 1, 'martes': 2, u'miércoles': 3, 'jueves': 4, 'viernes': 5, u'sábado': 6, 'domingo': 7}
 months = {'enero': 1, 'febrero': 2, 'marzo': 3, 'abril': 4, 'mayo': 5, 'junio': 6, 'julio': 7, 'agosto': 8, 'septiembre': 9, 'octubre': 10, 'noviembre': 11, 'diciembre': 12}
 
 class Meta():
@@ -51,15 +51,16 @@ class Meta():
             self.date = datetime(int(date_parts[3]), int(months[date_parts[2]]), int(week_days[date_parts[0]]), hour=int(date_parts[4]), minute=int(date_parts[5]))
         except Exception as e:
             print(e)
-            self.date = date_raw 
-        
+            print(date_raw)
+            self.date = date_raw
+
         return self
 
 
 class Nota():
     def genBody(self, body_parts):
         return ''.join("%s\n" % paragraph for paragraph in body_parts)
-    
+
     def __init__(self, **kwargs):
                 if 'title' in kwargs:
                     self.title = kwargs['title']
@@ -80,7 +81,7 @@ class Nota():
             self.body = self.genBody(elements[2:])
         else:
             raise Exception("Nota incorrecta")
-        
+
         return self
 
     def title_key(self):
@@ -98,7 +99,7 @@ def index():
     elif request.method == 'POST':
         clips = request.files['notas'].read().decode('utf-8')
         notes = clips.split('==========')
-        notas = {} 
+        notas = {}
         for note in notes:
             try:
                 n = Nota().parse(note)
@@ -109,6 +110,4 @@ def index():
                 notas[key].append(n)
             else:
                 notas[key] = [n]
-        return render_template('notas.html', title='Notas', n=len(notas), notas=notas)  
-
-    
+        return render_template('notas.html', title='Notas', n=len(notas), notas=notas)

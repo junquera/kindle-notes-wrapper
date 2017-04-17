@@ -2,22 +2,25 @@
 {% block body %}
 <ul class="nav nav-tabs">
     {% for key, libro in notas.iteritems() %}
-        <li><a href="#{{ key }}" data-toggle="tab">{{ libro[0].title }}</a></li>
+        <li {% if loop.index == 1 %}class="active"{% endif %}><a href="#{{ key }}" data-toggle="tab">{{ libro[0].title }}</a></li>
     {% endfor %}
 </ul>
 
 <div class="tab-content clearfix">
      {% for key, libro in notas.iteritems() %}
-     <div class="tab-pane" id="{{ key }}"> 
+     <div class="tab-pane {% if loop.index == 1 %}active{% endif %}" id="{{ key }}"> 
      <h2>{{ libro[0].title }}</h2>
      {% for nota in libro %}
-        <span style="float: left" class="label label-default">PAG {{ nota.meta.page }}</span>
-        <span style="float: right" class="label label-default">{{ nota.meta.date }}</span>
-        <br>
-        <!--        <pre>{{ nota.meta.position }}</pre> -->
-        <!-- <pre>{{ nota.meta.date }}</pre> -->
-        <p>{{ nota.body }}</p>
-        <!-- <div class="panel-footer">{{ nota.meta }}</div> -->
+     <div class="panel panel-default">
+        <div class="panel-heading">{{ nota.meta.date }}</div>
+        <div class="panel-body">{{ nota.body }}</div>
+        <div class="panel-footer">
+            <div> 
+                <span class="label label-primary">PÁGINA {{ nota.meta.page }}</span>
+                <span class="label label-info">POSICIÓN {{ nota.meta.position }}</span>
+            </div>
+        </div>
+     </div>
         {% endfor %}
      </div>
         {% endfor %}
